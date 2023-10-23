@@ -24,18 +24,6 @@ public class TransactionController {
         this.modelMapper = modelMapper;
     }
 
-    @Operation(summary = "Get all transactions")
-    @GetMapping("/getByAccountNum")
-    public List<TransactionHistoryDto> getAllTransactions(
-            @Parameter(name = "accountNum", description = "Bank Account number", example = "1")
-            @RequestParam Long accountNum) {
-        return modelMapper.map(
-                transferManagementService.getAllTransaction(accountNum),
-                new TypeToken<List<TransactionHistoryDto>>() {
-                }.getType()
-        );
-    }
-
     @Operation(summary = "Put money to the account")
     @PostMapping("/refill")
     public ResponseEntity<AccountDto> putMoneyToAccount(@Valid @RequestBody PutMoneyToAccountDto putMoney) {
