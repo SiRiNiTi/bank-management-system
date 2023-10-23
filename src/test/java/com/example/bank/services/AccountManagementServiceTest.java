@@ -41,9 +41,9 @@ public class AccountManagementServiceTest {
         client1.setPin(1234);
 
         account1.setClient(client1);
-        account1.setAccountNum(958);
+        account1.setAccountNum(958L);
         account2.setClient(client1);
-        account2.setAccountNum(996);
+        account2.setAccountNum(996L);
     }
 
     @Test

@@ -2,6 +2,7 @@ package com.example.bank.controllers;
 
 import com.example.bank.models.dtos.*;
 import com.example.bank.services.TransferManagementService;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
@@ -12,36 +13,38 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/money")
-public class TransferMoneyController {
+@RequestMapping("/transactions")
+public class TransactionController {
 
     private final TransferManagementService transferManagementService;
     private final ModelMapper modelMapper;
 
-    public TransferMoneyController(TransferManagementService transferManagementService, ModelMapper modelMapper) {
+    public TransactionController(TransferManagementService transferManagementService, ModelMapper modelMapper) {
         this.transferManagementService = transferManagementService;
         this.modelMapper = modelMapper;
     }
 
-    @GetMapping("/get")
+    @Operation(summary = "Get all transactions")
+    @GetMapping("/getByAccountNum")
     public List<TransactionHistoryDto> getAllTransactions(
             @Parameter(name = "accountNum", description = "Bank Account number", example = "1")
-//            @NotNull(message = "AccountNum is mandatory")
-            @RequestParam(required = false) Long accountNum) {
+            @RequestParam Long accountNum) {
         return modelMapper.map(
                 transferManagementService.getAllTransaction(accountNum),
-                new TypeToken<List<TransactionHistoryDto>>() {}.getType()
+                new TypeToken<List<TransactionHistoryDto>>() {
+                }.getType()
         );
     }
 
-
-    @PostMapping("/put")
+    @Operation(summary = "Put money to the account")
+    @PostMapping("/refill")
     public ResponseEntity<AccountDto> putMoneyToAccount(@Valid @RequestBody PutMoneyToAccountDto putMoney) {
         var account = transferManagementService.putMoneyToAccount(putMoney.getAccountNum(), putMoney.getAmount());
         return ResponseEntity.ok(modelMapper.map(account, AccountDto.class));
     }
 
-    @PostMapping("/take")
+    @Operation(summary = "Take money from the account")
+    @PostMapping("/withdraw")
     public ResponseEntity<AccountDto> takeMoneyFromAccount(@Valid @RequestBody TakeMoneyFromAccountDto withdrawMoney) {
         var account = transferManagementService.takeMoneyFromAccount(withdrawMoney.getAccountNum(),
                 withdrawMoney.getPin(),
@@ -49,8 +52,9 @@ public class TransferMoneyController {
         return ResponseEntity.ok(modelMapper.map(account, AccountDto.class));
     }
 
+    @Operation(summary = "Transfer money between accounts")
     @PostMapping("/transfer")
-    public ResponseEntity transferMoneyFromTo(@Valid @RequestBody TransferMoneyDto transferMoney) {
+    public ResponseEntity<Void> transferMoneyFromTo(@Valid @RequestBody TransferMoneyDto transferMoney) {
         transferManagementService.transferMoneyFromTo(transferMoney.getAccountFrom(),
                 transferMoney.getAccountTo(),
                 transferMoney.getPin(),

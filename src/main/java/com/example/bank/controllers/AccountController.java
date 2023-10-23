@@ -7,16 +7,15 @@ import com.example.bank.services.AccountManagementService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 
 @RestController
-@RequestMapping("/account")
+@RequestMapping("/accounts")
 public class AccountController {
 
     private final AccountManagementService accountManagementService;
@@ -29,16 +28,18 @@ public class AccountController {
 
     @Operation(summary = "Get all Accounts")
     @GetMapping
-    public List<Account> getAllAccounts() {
-        return accountManagementService.getAllAccounts();
+    public List<AccountDto> getAllAccounts() {
+        return modelMapper.map(
+                accountManagementService.getAllAccounts(), new TypeToken<List<Account>>() {
+                }.getType()
+        );
     }
 
     @Operation(summary = "Create Account")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<AccountDto> createAccount(@Valid @RequestBody ClientDto client) throws URISyntaxException {
+    public AccountDto createAccount(@Valid @RequestBody ClientDto client) throws URISyntaxException {
         Account account = accountManagementService.createAccount(client.getPin(), client.getName());
-        return ResponseEntity.created(new URI("/account/" + account.getAccountNum()))
-                .body(modelMapper.map(account, AccountDto.class));
+        return modelMapper.map(account, AccountDto.class);
     }
 }

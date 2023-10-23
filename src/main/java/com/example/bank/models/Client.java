@@ -11,7 +11,7 @@ import lombok.Data;
 public class Client {
 
     @Id
-    private int pin;
+    private Integer pin;
     private String name;
 
 }

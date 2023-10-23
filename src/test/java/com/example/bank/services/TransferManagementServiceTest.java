@@ -15,6 +15,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -49,15 +50,15 @@ class TransferManagementServiceTest {
         var account = new Account();
 
         var tr = new TransactionHistory();
-        tr.setId(1);
-        tr.setBalanceBefore(1000);
-        tr.setBalanceAfter(100);
+        tr.setId(1L);
+        tr.setBalanceBefore(new BigDecimal(1000));
+        tr.setBalanceAfter(new BigDecimal(100));
         tr.setAccount(account);
 
         var tr2 = new TransactionHistory();
-        tr2.setId(2);
-        tr2.setBalanceBefore(1000);
-        tr2.setBalanceAfter(100);
+        tr2.setId(2L);
+        tr2.setBalanceBefore(new BigDecimal(1000));
+        tr2.setBalanceAfter(new BigDecimal(100));
         tr2.setAccount(account);
 
         Mockito.doReturn(List.of(tr, tr2)).when(transferMoneyReposiroty).findAllByAccountAccountNum(anyLong());
@@ -72,15 +73,15 @@ class TransferManagementServiceTest {
         var account2 = new Account();
 
         var tr = new TransactionHistory();
-        tr.setId(1);
-        tr.setBalanceBefore(1000);
-        tr.setBalanceAfter(100);
+        tr.setId(1L);
+        tr.setBalanceBefore(new BigDecimal(1000));
+        tr.setBalanceAfter(new BigDecimal(100));
         tr.setAccount(account1);
 
         var tr2 = new TransactionHistory();
-        tr2.setId(2);
-        tr2.setBalanceBefore(1000);
-        tr2.setBalanceAfter(100);
+        tr2.setId(2L);
+        tr2.setBalanceBefore(new BigDecimal(1000));
+        tr2.setBalanceAfter(new BigDecimal(100));
         tr2.setAccount(account2);
 
         Mockito.doReturn(List.of(tr, tr2)).when(transferMoneyReposiroty).findAll();
@@ -100,18 +101,18 @@ class TransferManagementServiceTest {
     void putMoneyToAccount_givenValidInputAndAccountFound_thenNewTransactionToPutMoneyCreated() {
         var account = new Account();
         account.setClient(client1);
-        account.setAccountNum(555);
-        account.setCurrentBalance(0);
+        account.setAccountNum(555L);
+        account.setCurrentBalance(new BigDecimal(0));
 
         var tr = new TransactionHistory();
-        tr.setBalanceBefore(0);
-        tr.setBalanceAfter(100);
+        tr.setBalanceBefore(new BigDecimal(0));
+        tr.setBalanceAfter(new BigDecimal(100));
         tr.setAccount(account);
 
         Mockito.doReturn(Optional.of(account)).when(accountRepository).findById(any());
         Mockito.doReturn(new TransactionHistory()).when(transferMoneyReposiroty).save(any());
 
-        Account actualAccount = transferManagementService.putMoneyToAccount(1, 100);
+        Account actualAccount = transferManagementService.putMoneyToAccount(1, new BigDecimal(100));
         Mockito.verify(transferMoneyReposiroty).save(transactionHistoryCaptor.capture());
         TransactionHistory actualTr = transactionHistoryCaptor.getValue();
 
@@ -125,7 +126,7 @@ class TransferManagementServiceTest {
     void putMoneyToAccount_givenValidInputAndAccountNotFound_thenThrowException() {
         Mockito.doReturn(Optional.empty()).when(accountRepository).findById(any());
         NotFoundException exception = Assertions.assertThrows(NotFoundException.class,
-                () -> transferManagementService.putMoneyToAccount(1, 100));
+                () -> transferManagementService.putMoneyToAccount(1, new BigDecimal(100)));
         Assertions.assertEquals("Account with number 1 is not present", exception.getMessage());
     }
 
@@ -133,18 +134,18 @@ class TransferManagementServiceTest {
     void takeMoneyFromAccount_givenValidInputAndAccountFound_thenNewTransactionToTakeMoneyCreated() {
         var account = new Account();
         account.setClient(client1);
-        account.setAccountNum(555);
-        account.setCurrentBalance(1000);
+        account.setAccountNum(555L);
+        account.setCurrentBalance(new BigDecimal(1000));
 
         var tr = new TransactionHistory();
-        tr.setBalanceBefore(1000);
-        tr.setBalanceAfter(100);
+        tr.setBalanceBefore(new BigDecimal(1000));
+        tr.setBalanceAfter(new BigDecimal(100));
         tr.setAccount(account);
 
         Mockito.doReturn(Optional.of(account)).when(accountRepository).findById(any());
         Mockito.doReturn(tr).when(transferMoneyReposiroty).save(any());
 
-        Account actualAccount = transferManagementService.takeMoneyFromAccount(1, 1111, 900);
+        Account actualAccount = transferManagementService.takeMoneyFromAccount(1, 1111, new BigDecimal(900));
         Mockito.verify(transferMoneyReposiroty).save(transactionHistoryCaptor.capture());
         TransactionHistory actualTr = transactionHistoryCaptor.getValue();
 
@@ -158,7 +159,7 @@ class TransferManagementServiceTest {
     void takeMoneyToAccount_givenValidInputAndAccountNotFound_thenThrowException() {
         Mockito.doReturn(Optional.empty()).when(accountRepository).findById(any());
         NotFoundException exception = Assertions.assertThrows(NotFoundException.class,
-                () -> transferManagementService.takeMoneyFromAccount(1, 1111, 500));
+                () -> transferManagementService.takeMoneyFromAccount(1, 1111, new BigDecimal(500)));
         Assertions.assertEquals("Account with number 1 is not present", exception.getMessage());
     }
 
@@ -166,12 +167,12 @@ class TransferManagementServiceTest {
     void takeMoneyToAccount_givenValidInputAndAccountFoundAndInvalidPin_thenThrowExceptionWrongPin() {
         var account = new Account();
         account.setClient(client1);
-        account.setAccountNum(555);
-        account.setCurrentBalance(1000);
+        account.setAccountNum(555L);
+        account.setCurrentBalance(new BigDecimal(1000));
 
         Mockito.doReturn(Optional.of(account)).when(accountRepository).findById(any());
         TransferMoneyException exception = Assertions.assertThrows(TransferMoneyException.class,
-                () -> transferManagementService.takeMoneyFromAccount(1, 5555, 500));
+                () -> transferManagementService.takeMoneyFromAccount(1, 5555, new BigDecimal(500)));
         Assertions.assertEquals("Wrong PIN for Account with number 1", exception.getMessage());
     }
 
@@ -179,12 +180,12 @@ class TransferManagementServiceTest {
     void takeMoneyToAccount_givenValidInputAndAccountFound_thenThrowExceptionBalanceNotEnough() {
         var account = new Account();
         account.setClient(client1);
-        account.setAccountNum(555);
-        account.setCurrentBalance(100);
+        account.setAccountNum(555L);
+        account.setCurrentBalance(new BigDecimal(100));
 
         Mockito.doReturn(Optional.of(account)).when(accountRepository).findById(any());
         TransferMoneyException exception = Assertions.assertThrows(TransferMoneyException.class,
-                () -> transferManagementService.takeMoneyFromAccount(1, 1111, 500));
+                () -> transferManagementService.takeMoneyFromAccount(1, 1111, new BigDecimal(500)));
         Assertions.assertEquals("Money is not enough on Account with number 1", exception.getMessage());
     }
 
@@ -192,21 +193,21 @@ class TransferManagementServiceTest {
     void transferMoneyFromTo_givenValidInput_then2TransactionCreated() {
         var sourceAccount = new Account();
         sourceAccount.setClient(client1);
-        sourceAccount.setAccountNum(555);
-        sourceAccount.setCurrentBalance(1000);
+        sourceAccount.setAccountNum(555L);
+        sourceAccount.setCurrentBalance(new BigDecimal(1000));
 
         var targetAccount = new Account();
         targetAccount.setClient(client2);
-        targetAccount.setAccountNum(666);
-        targetAccount.setCurrentBalance(200);
+        targetAccount.setAccountNum(666L);
+        targetAccount.setCurrentBalance(new BigDecimal(200));
 
         var trOnSourceAccount = new TransactionHistory();
-        trOnSourceAccount.setBalanceBefore(1000);
-        trOnSourceAccount.setBalanceAfter(500);
+        trOnSourceAccount.setBalanceBefore(new BigDecimal(1000));
+        trOnSourceAccount.setBalanceAfter(new BigDecimal(500));
         trOnSourceAccount.setAccount(sourceAccount);
         var trOnTargetAccount = new TransactionHistory();
-        trOnTargetAccount.setBalanceBefore(200);
-        trOnTargetAccount.setBalanceAfter(700);
+        trOnTargetAccount.setBalanceBefore(new BigDecimal(200));
+        trOnTargetAccount.setBalanceAfter(new BigDecimal(700));
         trOnTargetAccount.setAccount(targetAccount);
 
         Mockito.doReturn(Optional.of(sourceAccount))
@@ -214,7 +215,7 @@ class TransferManagementServiceTest {
                 .when(accountRepository).findById(any());
         Mockito.doReturn(trOnSourceAccount).when(transferMoneyReposiroty).save(any());
 
-        transferManagementService.transferMoneyFromTo(555, 666, 1111, 500);
+        transferManagementService.transferMoneyFromTo(555, 666, 1111, new BigDecimal(500));
         Mockito.verify(transferMoneyReposiroty, times(2)).save(transactionHistoryCaptor.capture());
         List<TransactionHistory> transactions = transactionHistoryCaptor.getAllValues();
 
@@ -239,7 +240,7 @@ class TransferManagementServiceTest {
     void transferMoneyFromTo_givenValidInputAndSourceAccountNotFound_thenThrowException() {
         Mockito.doReturn(Optional.empty()).when(accountRepository).findById(any());
         NotFoundException exception = Assertions.assertThrows(NotFoundException.class,
-                () -> transferManagementService.transferMoneyFromTo(555, 666, 1111, 500));
+                () -> transferManagementService.transferMoneyFromTo(555, 666, 1111, new BigDecimal(500)));
         Assertions.assertEquals("Source Account with number 555 is not present", exception.getMessage());
     }
 
@@ -249,7 +250,7 @@ class TransferManagementServiceTest {
                 .doReturn(Optional.empty())
                 .when(accountRepository).findById(any());
         NotFoundException exception = Assertions.assertThrows(NotFoundException.class,
-                () -> transferManagementService.transferMoneyFromTo(555, 666, 1111, 500));
+                () -> transferManagementService.transferMoneyFromTo(555, 666, 1111, new BigDecimal(500)));
         Assertions.assertEquals("Target Account with number 666 is not present", exception.getMessage());
     }
 
@@ -257,21 +258,21 @@ class TransferManagementServiceTest {
     void transferMoneyFromTo_givenInValidPin_thenThrowExceptionWrongPin() {
         var sourceAccount = new Account();
         sourceAccount.setClient(client1);
-        sourceAccount.setAccountNum(555);
-        sourceAccount.setCurrentBalance(1000);
+        sourceAccount.setAccountNum(555L);
+        sourceAccount.setCurrentBalance(new BigDecimal(1000));
 
         var targetAccount = new Account();
         targetAccount.setClient(client2);
-        targetAccount.setAccountNum(666);
-        targetAccount.setCurrentBalance(200);
+        targetAccount.setAccountNum(666L);
+        targetAccount.setCurrentBalance(new BigDecimal(200));
 
         var trOnSourceAccount = new TransactionHistory();
-        trOnSourceAccount.setBalanceBefore(1000);
-        trOnSourceAccount.setBalanceAfter(500);
+        trOnSourceAccount.setBalanceBefore(new BigDecimal(1000));
+        trOnSourceAccount.setBalanceAfter(new BigDecimal(500));
         trOnSourceAccount.setAccount(sourceAccount);
         var trOnTargetAccount = new TransactionHistory();
-        trOnTargetAccount.setBalanceBefore(200);
-        trOnTargetAccount.setBalanceAfter(700);
+        trOnTargetAccount.setBalanceBefore(new BigDecimal(200));
+        trOnTargetAccount.setBalanceAfter(new BigDecimal(700));
         trOnTargetAccount.setAccount(targetAccount);
 
         Mockito.doReturn(Optional.of(sourceAccount))
@@ -279,7 +280,7 @@ class TransferManagementServiceTest {
                 .when(accountRepository).findById(any());
 
         TransferMoneyException exception = Assertions.assertThrows(TransferMoneyException.class,
-                () -> transferManagementService.transferMoneyFromTo(555, 666, 5463, 500));
+                () -> transferManagementService.transferMoneyFromTo(555, 666, 5463, new BigDecimal(500)));
         Assertions.assertEquals("Wrong PIN for Source Account with number 555", exception.getMessage());
     }
 
@@ -287,21 +288,21 @@ class TransferManagementServiceTest {
     void transferMoneyFromTo_givenValidInputAndAccountFound_thenThrowExceptionBalanceNotEnough() {
         var sourceAccount = new Account();
         sourceAccount.setClient(client1);
-        sourceAccount.setAccountNum(555);
-        sourceAccount.setCurrentBalance(100);
+        sourceAccount.setAccountNum(555L);
+        sourceAccount.setCurrentBalance(new BigDecimal(100));
 
         var targetAccount = new Account();
         targetAccount.setClient(client2);
-        targetAccount.setAccountNum(666);
-        targetAccount.setCurrentBalance(200);
+        targetAccount.setAccountNum(666L);
+        targetAccount.setCurrentBalance(new BigDecimal(200));
 
         var trOnSourceAccount = new TransactionHistory();
-        trOnSourceAccount.setBalanceBefore(1000);
-        trOnSourceAccount.setBalanceAfter(500);
+        trOnSourceAccount.setBalanceBefore(new BigDecimal(1000));
+        trOnSourceAccount.setBalanceAfter(new BigDecimal(500));
         trOnSourceAccount.setAccount(sourceAccount);
         var trOnTargetAccount = new TransactionHistory();
-        trOnTargetAccount.setBalanceBefore(200);
-        trOnTargetAccount.setBalanceAfter(700);
+        trOnTargetAccount.setBalanceBefore(new BigDecimal(200));
+        trOnTargetAccount.setBalanceAfter(new BigDecimal(700));
         trOnTargetAccount.setAccount(targetAccount);
 
         Mockito.doReturn(Optional.of(sourceAccount))
@@ -309,7 +310,7 @@ class TransferManagementServiceTest {
                 .when(accountRepository).findById(any());
 
         TransferMoneyException exception = Assertions.assertThrows(TransferMoneyException.class,
-                () -> transferManagementService.transferMoneyFromTo(555, 666, 1111, 500));
+                () -> transferManagementService.transferMoneyFromTo(555, 666, 1111, new BigDecimal(500)));
         Assertions.assertEquals("Balance is not enough on Source Account with number 555", exception.getMessage());
     }
 

@@ -20,6 +20,6 @@ public class ClientDto {
     @NotNull
     @Min(1000)
     @Max(9999)
-    private int pin;
+    private Integer pin;
 
 }

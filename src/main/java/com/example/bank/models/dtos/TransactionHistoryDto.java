@@ -11,13 +11,13 @@ import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 @Data
 public class TransactionHistoryDto {
     @Schema(description = "Transaction id", example = "1", requiredMode = REQUIRED)
-    private long id;
+    private Long id;
 
     @Schema(description = "Balance before transaction", example = "100", requiredMode = REQUIRED)
-    private long balanceBefore;
+    private Long balanceBefore;
 
     @Schema(description = "Balance after transaction", example = "100", requiredMode = REQUIRED)
-    private long balanceAfter;
+    private Long balanceAfter;
 
     @Schema(description = "Transaction time", example = "2023-10-20T06:47:50.220", requiredMode = REQUIRED)
     private Timestamp transactionTime;
