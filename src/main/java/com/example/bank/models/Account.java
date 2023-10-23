@@ -22,7 +22,6 @@ public class Account {
 
     @ManyToOne
     @JoinColumn(name = "client_id", nullable = false, updatable = false)
-    @Fetch(FetchMode.SUBSELECT) //TODO NOT work
     private Client client;
 
     @JsonIgnore
