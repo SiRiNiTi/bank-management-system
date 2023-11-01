@@ -12,6 +12,7 @@ import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URISyntaxException;
@@ -35,6 +36,7 @@ public class AccountController {
 
     @Operation(summary = "Get all Accounts")
     @GetMapping
+    @PreAuthorize("")
     public List<AccountDto> getAllAccounts() {
         return modelMapper.map(
                 accountManagementService.getAllAccounts(), new TypeToken<List<Account>>() {
